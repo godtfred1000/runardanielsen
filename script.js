@@ -1,30 +1,41 @@
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
 
-function closeMenu() {
-  nav?.classList.remove('open');
-  toggle?.setAttribute('aria-expanded', 'false');
-  toggle?.setAttribute('aria-label', 'Åpne meny');
-}
-
 toggle?.addEventListener('click', () => {
-  if (!nav) return;
   const open = nav.classList.toggle('open');
   toggle.setAttribute('aria-expanded', String(open));
   toggle.setAttribute('aria-label', open ? 'Lukk meny' : 'Åpne meny');
 });
 
 document.querySelectorAll('.main-nav a').forEach(link => {
-  link.addEventListener('click', closeMenu);
+  link.addEventListener('click', () => {
+    nav.classList.remove('open');
+    toggle?.setAttribute('aria-expanded', 'false');
+  });
 });
 
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') closeMenu();
-});
+document.getElementById('year').textContent = new Date().getFullYear();
 
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 900) closeMenu();
-});
+async function delSide() {
+  const delingsdata = {
+    title: document.title,
+    text: 'Se tidligere utførte jobber fra Malermester Runar Danielsen AS.',
+    url: window.location.href
+  };
 
-const year = document.getElementById('year');
-if (year) year.textContent = String(new Date().getFullYear());
+  if (navigator.share) {
+    try {
+      await navigator.share(delingsdata);
+    } catch (error) {
+      // Brukeren lukket delingsvinduet.
+    }
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    alert('Lenken er kopiert.');
+  } catch (error) {
+    window.prompt('Kopier lenken:', window.location.href);
+  }
+}
